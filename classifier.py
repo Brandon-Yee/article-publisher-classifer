@@ -27,15 +27,24 @@ for data in data_iter:
 
 
 def generate_data_sets(path):
+    """
+    Generates training, validation and test dataframes.
+    PARAMETERS:
+    path - string: path to original data csv
+    RETURNS:
+    train - pandas dataframe: df with 3 columns for training
+    val - pandas dataframe: df with 3 columns for validation
+    test - pandas dataframe: df w/ 3 cols for test
+    """
+
     rng = default_rng(seed=6)
     data = pd.read_csv(path, usecols=['publication', 'title', 'article'])
 
-    # drop rows where publisher is na
-    data.drop(np.nonzero((data['publication'].isna()).values)[0], inplace=True)
-    data = data.reindex(np.arange(len(data)))
+    # determine all indexes that are not nan
+    nan_idx = np.nonzero((data['publication'].isna()).values)[0]
+    remain_idx = np.setdiff1d(np.arange(len(data)), nan_idx, assume_unique=True)
 
-    remain_idx = np.arange(len(data))
-
+    # named target classes (does not include 'Other')
     tgt_classes = [
         'Reuters',
         'TechCrunch',
@@ -54,27 +63,37 @@ def generate_data_sets(path):
     val_idxs = {}
     test_idxs = {}
 
+    # determine indexes for each named class
     for each in tgt_classes:
-        # for each class, select 20K
+        # for each class, select 16K for training, 2K for val, and 2K for test
+
+        # all indexes for the given class
         class_idxs[each] = np.nonzero((data['publication'] == each).values)[0]
+        # randomly shuffle the indexes
         rng.shuffle(class_idxs[each])
+        # select the needed amount
         train_idxs[each] = class_idxs[each][:16000]
         val_idxs[each] = class_idxs[each][16000:18000]
         test_idxs[each] = class_idxs[each][18000:20000]
 
+    # concatenate all of the named classes of each category
+    # to aggregate the data set
     class_train_idx = np.concatenate([arr for arr in train_idxs.values()])
     class_val_idx = np.concatenate([arr for arr in val_idxs.values()])
     class_test_idx = np.concatenate([arr for arr in test_idxs.values()])
 
+    # determine the non-named class indexes and label them 'Other
     all_class_idx = np.concatenate([arr for arr in class_idxs.values()])
-
     extra_idx = np.setdiff1d(remain_idx, all_class_idx, assume_unique=True)
     data['publication'].loc[extra_idx] = 'Other'
+
+    # shuffle them and select 20K
     rng.shuffle(extra_idx)
     other_train_idx = extra_idx[:16000]
     other_val_idx = extra_idx[16000:18000]
     other_test_idx = extra_idx[18000:20000]
 
+    # add in the 'Other' rows
     all_train_idx = np.concatenate((class_train_idx, other_train_idx))
     all_val_idx = np.concatenate((class_val_idx, other_val_idx))
     all_test_idx = np.concatenate((class_test_idx, other_test_idx))
