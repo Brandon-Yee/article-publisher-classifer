@@ -19,3 +19,8 @@ Publication classes:
 9. Washington Post    40,882
 10. Business Insider  57,953
 11. Other
+
+
+Notes:
+- The date ranges by class are very different, so we are not using it as a feature.
+- 'section' feature seems unique to class
