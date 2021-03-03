@@ -28,13 +28,17 @@ for data in data_iter:
 
 def generate_data_sets(path):
     """
-    Generates training, validation and test dataframes.
+    Generates training, validation and test dataframes with the data in random
+    ordering.
+    Note: the returned dataframes have an 'orig_index' column (separate from
+          the actual index of the dataframe) that indicates the original row
+          within the original raw data that it corresponds to.
     PARAMETERS:
     path - string: path to original data csv
     RETURNS:
-    train - pandas dataframe: df with 3 columns for training
-    val - pandas dataframe: df with 3 columns for validation
-    test - pandas dataframe: df w/ 3 cols for test
+    train - pandas dataframe: df with 4 columns for training
+    val - pandas dataframe: df with 4 columns for validation
+    test - pandas dataframe: df w/ 4 cols for test
     """
 
     rng = default_rng(seed=6)
@@ -98,8 +102,21 @@ def generate_data_sets(path):
     all_val_idx = np.concatenate((class_val_idx, other_val_idx))
     all_test_idx = np.concatenate((class_test_idx, other_test_idx))
 
+    # shuffle the indexes so that the classes are not grouped together
+    rng.shuffle(all_train_idx)
+    rng.shuffle(all_val_idx)
+    rng.shuffle(all_test_idx)
+
     train = data.loc[all_train_idx]
     val = data.loc[all_val_idx]
     test = data.loc[all_test_idx]
+
+    # reset the indexes and adjust the name of the new original index col
+    train.reset_index(inplace=True)
+    val.reset_index(inplace=True)
+    test.reset_index(inplace=True)
+    train.rename(columns={'index': 'orig_index'}, inplace=True)
+    val.rename(columns={'index': 'orig_index'}, inplace=True)
+    test.rename(columns={'index': 'orig_index'}, inplace=True)
 
     return train, val, test
