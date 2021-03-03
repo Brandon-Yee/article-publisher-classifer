@@ -8,14 +8,14 @@ We used a dataset from Components of 2.7 million news articles and essays from 2
 
 
 Publication classes:
-1. Reuters
-2. TechCrunch
-3. Economist
-4. CNN
-5. New Yorker
-6. Fox News
-7. Politico
-8. The New York Times
-9. Washington Post
-10. Business Insider
+1. Reuters        840,094
+2. TechCrunch     52,095
+3. Economist      26,227
+4. CNN            127,602
+5. CNBC           238,096
+6. Fox News       20,144
+7. Politico       46,377
+8. The New York Times 252,259
+9. Washington Post    40,882
+10. Business Insider  57,953
 11. Other
