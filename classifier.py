@@ -98,8 +98,8 @@ def generate_data_sets(path):
     all_val_idx = np.concatenate((class_val_idx, other_val_idx))
     all_test_idx = np.concatenate((class_test_idx, other_test_idx))
 
-    train = data.loc[all_train_idx].copy()
-    val = data.loc[all_val_idx].copy()
-    test = data.loc[all_test_idx].copy()
+    train = data.loc[all_train_idx]
+    val = data.loc[all_val_idx]
+    test = data.loc[all_test_idx]
 
     return train, val, test
