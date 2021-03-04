@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 from numpy.random import default_rng
 
-
+"""
 # 
 # https://towardsdatascience.com/3-simple-ways-to-handle-large-data-with-pandas-d9164a3c02c1
 columns = ['Unnamed: 0', 'Unnamed: 0.1', 'date', 'year', 'month', 'day', 'author', 'title', 'article', 'url', 'section', 'publication']
@@ -24,7 +24,7 @@ data_iter = pd.read_csv('./article_data.csv', chunksize=chunksize)
 for data in data_iter:
     print(data)
     break
-
+"""
 
 def generate_data_sets(path):
     """
@@ -45,7 +45,10 @@ def generate_data_sets(path):
     data = pd.read_csv(path, usecols=['publication', 'title', 'article'])
 
     # determine all indexes that are not nan
-    nan_idx = np.nonzero((data['publication'].isna()).values)[0]
+    any_nan = np.logical_or(data['publication'].isna().values,
+                            data['article'].isna().values)
+    any_nan = np.logical_or(any_nan, data['title'].isna().values)
+    nan_idx = np.nonzero(any_nan)[0]
     remain_idx = np.setdiff1d(np.arange(len(data)), nan_idx, assume_unique=True)
 
     # named target classes (does not include 'Other')
