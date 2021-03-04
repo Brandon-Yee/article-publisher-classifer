@@ -45,11 +45,10 @@ def generate_data_sets(path):
     data = pd.read_csv(path, usecols=['publication', 'title', 'article'])
 
     # determine all indexes that are not nan
-    any_nan = np.logical_or(data['publication'].isna().values,
-                            data['article'].isna().values)
-    any_nan = np.logical_or(any_nan, data['title'].isna().values)
-    nan_idx = np.nonzero(any_nan)[0]
-    remain_idx = np.setdiff1d(np.arange(len(data)), nan_idx, assume_unique=True)
+    any_nan = data.isna().any(axis=1, bool_only=True)
+    nan_idx = np.nonzero(any_nan.values)[0]
+    remain_idx = np.setdiff1d(np.arange(len(data)), nan_idx,
+                              assume_unique=True)
 
     # named target classes (does not include 'Other')
     tgt_classes = [
@@ -61,7 +60,7 @@ def generate_data_sets(path):
         'Fox News',
         'Politico',
         'The New York Times',
-        'Washington Post',
+        'Vox',
         'Business Insider'
         ]
 
@@ -70,12 +69,15 @@ def generate_data_sets(path):
     val_idxs = {}
     test_idxs = {}
 
+
     # determine indexes for each named class
     for each in tgt_classes:
         # for each class, select 16K for training, 2K for val, and 2K for test
 
         # all indexes for the given class
-        class_idxs[each] = np.nonzero((data['publication'] == each).values)[0]
+        this_class = np.nonzero((data['publication'] == each).values)[0]
+        class_idxs[each] = np.intersect1d(remain_idx, this_class,
+                                          assume_unique=True)
         # randomly shuffle the indexes
         rng.shuffle(class_idxs[each])
         # select the needed amount
@@ -123,3 +125,7 @@ def generate_data_sets(path):
     test.rename(columns={'index': 'orig_index'}, inplace=True)
 
     return train, val, test
+
+
+def remove_reut(df):
+    df[df['publication'] == 'Reuters']['article'].str.replace('^.*\(Reuters\) - ', '', regex=True)
