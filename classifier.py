@@ -27,6 +27,12 @@ for data in data_iter:
 """
 
 
+def save_data(train, val, test, trainpath='./train_data.csv', valpath='./val_data.csv', testpath='./test_data.csv'):
+    train.to_csv(trainpath)
+    val.to_csv(valpath)
+    test.to_csv(testpath)
+
+
 def load_data(trainpath='./train_data.csv', valpath='./val_data.csv', testpath='./test_data.csv'):
     """
     Loads training, validation, and test datasets from file. To be used with
