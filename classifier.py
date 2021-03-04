@@ -26,6 +26,7 @@ for data in data_iter:
     break
 """
 
+
 def load_data(trainpath='./train_data.csv', valpath='./val_data.csv', testpath='./test_data.csv'):
     """
     Loads training, validation, and test datasets from file. To be used with
@@ -39,12 +40,13 @@ def load_data(trainpath='./train_data.csv', valpath='./val_data.csv', testpath='
     val - pandas dataframe: df with 5 columns for validation
     test - pandas dataframe: df with 5 columns for test
     """
-    
+
     train = pd.read_csv(trainpath)
     val = pd.read_csv(valpath)
     test = pd.read_csv(testpath)
     return train, val, test
-    
+
+
 def generate_data_sets(path):
     """
     Generates training, validation and test dataframes with the data in random
@@ -147,4 +149,6 @@ def generate_data_sets(path):
 
 
 def remove_reut(df):
-    df[df['publication'] == 'Reuters']['article'].str.replace('^.*\(Reuters\) - ', '', regex=True)
+    df[df['publication'] == 'Reuters']['article'] = df[df['publication'] ==
+        'Reuters']['article'].str.replace('^.*\(Reuters\) - ', '', regex=True)
+    return df
