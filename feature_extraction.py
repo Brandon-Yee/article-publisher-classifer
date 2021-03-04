@@ -54,7 +54,7 @@ def get_vocab(X_train, Y_train, length=5000, vocab_type='mutual info'):
         sorted_info = info(sorted_idx)
         return vocab, sorted_info
     else:
-        vectorizer = TfidfVectorizer(smooth_idx=True, max_features=length)
+        vectorizer = TfidfVectorizer(smooth_idf=True, max_features=length)
         sample_tf_idf = vectorizer.fit_transform(X_train)
-        return vectorizer.get_feature_names()
+        return vectorizer, sample_tf_idf
 
