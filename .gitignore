@@ -1,3 +1,5 @@
 article_data.csv
 __pycache__
 *.csv
+notes.org
+*.ipynb
