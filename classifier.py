@@ -26,6 +26,9 @@ for data in data_iter:
     break
 """
 
+MAX_ART_LENGTH = 28000
+MAX_TITLE_LENGTH = 50
+
 
 def save_data(train, val, test, trainpath='./train_data.csv', valpath='./val_data.csv', testpath='./test_data.csv'):
     train.to_csv(trainpath)
@@ -53,6 +56,7 @@ def load_data(trainpath='./train_data.csv', valpath='./val_data.csv', testpath='
     return train, val, test
 
 
+# data = pd.read_csv(path, usecols=['publication', 'title', 'article'], nrows=400)
 def generate_data_sets(path):
     """
     Generates training, validation and test dataframes with the data in random
@@ -71,11 +75,41 @@ def generate_data_sets(path):
     rng = default_rng(seed=6)
     data = pd.read_csv(path, usecols=['publication', 'title', 'article'])
 
+    data = remove_reut(data)
     # determine all indexes that are not nan
     any_nan = data.isna().any(axis=1, bool_only=True)
     nan_idx = np.nonzero(any_nan.values)[0]
     remain_idx = np.setdiff1d(np.arange(len(data)), nan_idx,
                               assume_unique=True)
+
+    data['title'].loc[remain_idx] = data['title'].loc[remain_idx].str.split()
+    data['article'].loc[remain_idx] = data['article'].loc[remain_idx].str.split()
+
+    long_idx = np.where(data['title'].str.len() > (MAX_TITLE_LENGTH-2))[0]
+    for each_idx in long_idx:
+        data['title'].loc[each_idx] = data['title'].loc[each_idx][:MAX_TITLE_LENGTH-2]
+
+    long_idx = np.where(data['article'].str.len() > (MAX_ART_LENGTH-2))[0]
+    for each_idx in long_idx:
+        data['article'].loc[each_idx] = data['article'].loc[each_idx][:MAX_ART_LENGTH-2]
+
+    for each_idx in remain_idx:
+        this_title = data['title'].loc[each_idx]
+        this_art = data['article'].loc[each_idx]
+
+        this_title.insert(0, '<s>')
+        this_title.append('</s>')
+        if len(this_title) < MAX_TITLE_LENGTH:
+            diff = MAX_TITLE_LENGTH - len(this_title)
+            extra = diff * ['</s>']
+            this_title[len(this_title):MAX_TITLE_LENGTH] = extra
+
+        this_art.insert(0, '<s>')
+        this_art.append('</s>')
+        if len(this_art) < MAX_ART_LENGTH:
+            diff = MAX_ART_LENGTH - len(this_art)
+            extra = diff * ['</s>']
+            this_art[len(this_art):MAX_ART_LENGTH] = extra
 
     # named target classes (does not include 'Other')
     tgt_classes = [
@@ -155,6 +189,6 @@ def generate_data_sets(path):
 
 
 def remove_reut(df):
-    df[df['publication'] == 'Reuters']['article'] = df[df['publication'] ==
-        'Reuters']['article'].str.replace('^.*\(Reuters\) - ', '', regex=True)
+    df['article'] = df['article'].str.replace('^.*\(Reuters\) - ', '',
+                                              regex=True)
     return df
