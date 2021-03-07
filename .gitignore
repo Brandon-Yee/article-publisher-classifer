@@ -3,3 +3,5 @@ __pycache__
 *.csv
 notes.org
 *.ipynb
+*.org~
+*.py~
