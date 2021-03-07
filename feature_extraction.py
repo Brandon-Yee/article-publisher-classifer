@@ -58,3 +58,19 @@ def get_vocab(X_train, Y_train, length=5000, vocab_type='mutual info'):
         sample_tf_idf = vectorizer.fit_transform(X_train)
         return vectorizer, sample_tf_idf
 
+def tokenize(batch, tokenizer, max_title_len=50, max_article_len=10000):
+    processed = []
+    for i in range(len(batch)):
+        title_tokens = tokenizer(batch['title'][i])
+        title_tokens.insert(0, '<s>')
+        title_pad = ['</s>'] * (max_title_len - len(title_tokens))
+        title_tokens.extend(title_pad)
+            
+        article_tokens = tokenizer(batch['article'][i])
+        article_tokens.insert(0, '<s>')
+        article_pad = ['</s>'] * (max_article_len - len(article_tokens))
+        article_tokens.extend(article_pad)
+        title_tokens.extend(article_tokens)
+        processed.append(title_tokens)
+        
+    return processed
