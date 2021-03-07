@@ -26,6 +26,9 @@ for data in data_iter:
     break
 """
 
+MAX_ART_LENGTH = 28000
+MAX_TITLE_LENGTH = 50
+
 
 def save_data(train, val, test, trainpath='./train_data.csv', valpath='./val_data.csv', testpath='./test_data.csv'):
     train.to_csv(trainpath)
@@ -157,4 +160,48 @@ def generate_data_sets(path):
 def remove_reut(df):
     df[df['publication'] == 'Reuters']['article'] = df[df['publication'] ==
         'Reuters']['article'].str.replace('^.*\(Reuters\) - ', '', regex=True)
+    return df
+
+
+def split_strings(df):
+    """
+    Does string processing on the input dataframe. Replaces the 'article' and
+    'title' columns with lists of words and adds start and end tokens. Properly
+    pads the end to make all the lists have the same lengths within the column.
+    PARAMETERS
+    df - Pandas DataFrame: one of the dataframes that is output from the
+         generate_data_sets() function
+    RETURNS
+    df - Pandas DataFrame: the input dataframe with 'title' and 'article'
+         columns transformed into lists of strings (the original full string
+         split on whitespace)
+    """
+    df['title'] = df['title'].str.split()
+    df['article'] = df['article'].str.split()
+
+    long_idx = np.where(df['title'].str.len() > (MAX_TITLE_LENGTH-2))[0]
+    for each_idx in long_idx:
+        df['title'] = df['title'][:MAX_TITLE_LENGTH-2]
+
+    long_idx = np.where(df['article'].str.len() > (MAX_ART_LENGTH-2))[0]
+    for each_idx in long_idx:
+        df['article'] = df['article'][:MAX_ART_LENGTH-2]
+
+    for each_idx in range(len(df)):
+        this_title = df['title'].iloc[each_idx]
+        this_art = df['article'].iloc[each_idx]
+
+        this_title.insert(0, '<s>')
+        this_title.append('</s>')
+        if len(this_title) < MAX_TITLE_LENGTH:
+            diff = MAX_TITLE_LENGTH - len(this_title)
+            extra = diff * ['</s>']
+            this_title[len(this_title):MAX_TITLE_LENGTH] = extra
+
+        this_art.insert(0, '<s>')
+        this_art.append('</s>')
+        if len(this_art) < MAX_ART_LENGTH:
+            diff = MAX_ART_LENGTH - len(this_art)
+            extra = diff * ['</s>']
+            this_art[len(this_art):MAX_ART_LENGTH] = extra
     return df
