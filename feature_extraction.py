@@ -58,18 +58,35 @@ def get_vocab(X_train, Y_train, length=5000, vocab_type='mutual info'):
         sample_tf_idf = vectorizer.fit_transform(X_train)
         return vectorizer, sample_tf_idf
 
-def tokenize(batch, tokenizer, max_title_len=50, max_article_len=10000):
+def tokenize(batch, tokenizer, vocabulary, max_title_len=50, max_article_len=10000):
     processed = []
     for i in range(len(batch)):
         title_tokens = tokenizer(batch['title'][i])
-        title_tokens.insert(0, '<s>')
-        title_pad = ['</s>'] * (max_title_len - len(title_tokens))
-        title_tokens.extend(title_pad)
-            
+        for j, token in enumerate(title_tokens):
+            if token not in vocabulary:
+                title_tokens[j] = 'unk'
+                
+        title_tokens.insert(0, 's')
+        if (max_title_len - len(title_tokens)) > 0:
+            title_pad = ['e'] * (max_title_len - len(title_tokens))
+            title_tokens.extend(title_pad)
+        else:
+            title_tokens.pop()
+            title_tokens.append('e')
+                        
         article_tokens = tokenizer(batch['article'][i])
-        article_tokens.insert(0, '<s>')
-        article_pad = ['</s>'] * (max_article_len - len(article_tokens))
-        article_tokens.extend(article_pad)
+        for j, token in enumerate(article_tokens):
+            if token not in vocabulary:
+                article_tokens[j] = 'unk'
+                
+        article_tokens.insert(0, 's')
+        if (max_article_len - len(article_tokens)) > 0:
+            article_pad = ['e'] * (max_article_len - len(article_tokens))
+            article_tokens.extend(article_pad)
+        else:
+            article_tokens.pop()
+            article_tokens.append('e')
+            
         title_tokens.extend(article_tokens)
         processed.append(title_tokens)
         
