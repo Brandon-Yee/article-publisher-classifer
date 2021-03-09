@@ -71,7 +71,9 @@ def tokenize(batch, tokenizer, vocabulary, max_title_len=50, max_article_len=100
             title_pad = ['e'] * (max_title_len - len(title_tokens))
             title_tokens.extend(title_pad)
         else:
-            title_tokens.pop()
+            for i in range(len(title_tokens) - max_title_len + 1):
+                title_tokens.pop()
+                
             title_tokens.append('e')
                         
         article_tokens = tokenizer(batch['article'][i])
@@ -84,10 +86,19 @@ def tokenize(batch, tokenizer, vocabulary, max_title_len=50, max_article_len=100
             article_pad = ['e'] * (max_article_len - len(article_tokens))
             article_tokens.extend(article_pad)
         else:
-            article_tokens.pop()
+            for i in range(len(article_tokens) - max_article_len + 1):
+                article_tokens.pop()
+                
             article_tokens.append('e')
             
         title_tokens.extend(article_tokens)
         processed.append(title_tokens)
         
     return processed
+
+def get_label_idx(Y, publications):
+    indices = []
+    for y in Y:
+        indices.append(publications.index(y))
+    
+    return indices
