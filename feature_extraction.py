@@ -102,3 +102,41 @@ def get_label_idx(Y, publications):
         indices.append(publications.index(y))
     
     return indices
+
+def tokenize_cnn(batch, tokenizer, vocabulary, max_title_len=5000, max_article_len=5000):
+    processed = []
+    for i in range(len(batch)):
+        title_tokens = tokenizer(batch['title'][i])
+        for j, token in enumerate(title_tokens):
+            if token not in vocabulary:
+                title_tokens[j] = 'unk'
+
+        title_tokens.insert(0, 's')
+        if (max_title_len - len(title_tokens)) > 0:
+            title_pad = ['e'] * (max_title_len - len(title_tokens))
+            title_tokens.extend(title_pad)
+        else:
+            for i in range(len(title_tokens) - max_title_len + 1):
+                title_tokens.pop()
+                
+            title_tokens.append('e')
+
+        article_tokens = tokenizer(batch['article'][i])
+        for j, token in enumerate(article_tokens):
+            if token not in vocabulary:
+                article_tokens[j] = 'unk'
+
+        article_tokens.insert(0, 's')
+        if (max_article_len - len(article_tokens)) > 0:
+            article_pad = ['e'] * (max_article_len - len(article_tokens))
+            article_tokens.extend(article_pad)
+        else:
+            for i in range(len(article_tokens) - max_article_len + 1):
+                article_tokens.pop()
+                
+            article_tokens.append('e')
+
+        each_entry = [title_tokens, article_tokens]
+        processed.append(each_entry)
+
+    return processed
