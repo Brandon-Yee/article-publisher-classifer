@@ -26,7 +26,7 @@ for data in data_iter:
     break
 """
 
-MAX_ART_LENGTH = 28000
+MAX_ART_LENGTH = 10000
 MAX_TITLE_LENGTH = 50
 
 
@@ -165,14 +165,14 @@ def remove_reut(df):
 
 def split_strings(df):
     """
-    Does string processing on the input dataframe. Replaces the 'article' and
-    'title' columns with lists of words and adds start and end tokens. Properly
+    Does string processing on the input dataframe. Replaces the article and
+    title columns with lists of words and adds start and end tokens. Properly
     pads the end to make all the lists have the same lengths within the column.
     PARAMETERS
     df - Pandas DataFrame: one of the dataframes that is output from the
          generate_data_sets() function
     RETURNS
-    df - Pandas DataFrame: the input dataframe with 'title' and 'article'
+    df - Pandas DataFrame: the input dataframe with title and article
          columns transformed into lists of strings (the original full string
          split on whitespace)
     """
