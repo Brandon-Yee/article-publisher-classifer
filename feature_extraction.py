@@ -106,7 +106,7 @@ def get_label_idx(Y, publications):
 def tokenize_cnn(batch, tokenizer, vocabulary, max_title_len=5000, max_article_len=5000):
     processed = []
     for i in range(len(batch)):
-        title_tokens = tokenizer(batch['title'][i])
+        title_tokens = tokenizer(batch['title'].iloc[i])
         for j, token in enumerate(title_tokens):
             if token not in vocabulary:
                 title_tokens[j] = 'unk'
@@ -121,7 +121,7 @@ def tokenize_cnn(batch, tokenizer, vocabulary, max_title_len=5000, max_article_l
                 
             title_tokens.append('e')
 
-        article_tokens = tokenizer(batch['article'][i])
+        article_tokens = tokenizer(batch['article'].iloc[i])
         for j, token in enumerate(article_tokens):
             if token not in vocabulary:
                 article_tokens[j] = 'unk'
