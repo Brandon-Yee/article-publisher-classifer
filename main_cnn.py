@@ -1,6 +1,7 @@
 import math
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import gensim
 from classifier import generate_data_sets, save_data, load_data
 from feature_extraction import get_vocab, tokenize_cnn
@@ -14,7 +15,7 @@ from sklearn import preprocessing
 
 #VOCAB_SIZE = 10000
 #MAX_LEN = 1000
-STEP_SIZE = .1
+STEP_SIZE = .01
 
 """
 KERN_CONV1 = 4
@@ -188,6 +189,7 @@ for number in range(NUM_EPOCHS):
 
         probs_val = cnn(batch_tensor_val)
         y_hat_val = probs_val.argmax(axis=1)
+        print(y_hat_val[:100])
 
         loss_val += loss_func(probs_val, y_coded_val).item()
         vtot_right += torch.count_nonzero(y_hat_val == y_coded_val).item()
@@ -206,3 +208,15 @@ for number in range(NUM_EPOCHS):
     print('\tTraining Accuracy:\t%f' % (acc_train))
     print('\tValidation Accuracy:\t%f' % (acc_val))
     print()
+
+
+plt.plot(range(1, 11), train_acc_list, label='Train')
+plt.plot(range(1, 11), val_acc_list, label='Validation')
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.title('Accuracy by Epoch for 4 layer Conv CNN')
+plt.legend()
+plt.grid()
+
+plt.show()
+
